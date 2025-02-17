@@ -103,6 +103,8 @@ const SpotForm = () => {
     setFormData({ ...formData, images: newImages });
   };
 
+  const isButtonDisabled = formData.country.length < 4 || formData.address.length < 1 || formData.city.length < 3 || formData.state.length < 5 || formData.lat < -90 || formData.lat > 90 || formData.lng < -180 || formData.lng > 180 || formData.name.length < 1 || formData.name.length > 50 || formData.price < 1 || formData.description.length < 30 || formData.previewImage.length < 1;
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrors({});
@@ -403,7 +405,7 @@ const SpotForm = () => {
           </div>
         </div>
         <hr />
-        <button type="submit" className="submit-btn">
+        <button type="submit" className="submit-btn" disabled={isButtonDisabled}>
           {isEdit ? "Update Spot" : "Create Spot"}
         </button>
       </form>
