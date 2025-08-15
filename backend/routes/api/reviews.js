@@ -141,28 +141,28 @@ router.post("/:id/images", requireAuth, async (req, res) => {
 
 
 //Delete a review
-router.delete(
-  "/:id",
-  requireAuth,
-  async (req, res) => {
+router.delete("/:id", requireAuth, async (req, res, next) => {
+  try {
     const reviewId = req.params.id;
+    const userId = req.user.id;
 
-    const reviewToDelete = await Review.findByPk(reviewId);
-
-
-    if (!reviewToDelete) {
-      return res.status(404).json({
-        message: "Review couldn't be found",
-      });
+    const review = await Review.findByPk(reviewId);
+    if (!review) {
+      return res.status(404).json({ message: "Review couldn't be found" });
     }
 
-    await reviewToDelete.destroy();
+    if (review.userId !== userId) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
 
+    await ReviewImage.destroy({ where: { reviewId } });
 
-    res.status(200).json({
-      message: "Successfully deleted",
-    });
+    await review.destroy();
+
+    return res.status(204).end();
+  } catch (err) {
+    return next(err);
   }
-);
+});
 
 module.exports = router;
