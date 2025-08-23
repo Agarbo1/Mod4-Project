@@ -32,8 +32,7 @@ export const fetchReviews = (spotId) => async (dispatch) => {
   try {
     const response = await csrfFetch(`/api/spots/${spotId}/reviews`);
     const data = await response.json();
-    const reviews = Array.isArray(data) ? data : data.Reviews || [];
-    console.log(`REVIEW DATA FOR SPOT ID ${spotId}`, reviews);
+    const reviews = data?.Reviews ?? [];
     dispatch(setReviews(spotId, reviews));
   } catch (error) {
     dispatch(setReviewError(error?.errors || "Error fetching reviews"));
@@ -66,10 +65,7 @@ export const addNewReview = (spotId, review) => async (dispatch) => {
 
 export const removeReview = (reviewId, spotId) => async (dispatch) => {
   try {
-    const response = await csrfFetch(`/api/reviews/${reviewId}`, {
-      method: "DELETE",
-    });
-
+    const response = await csrfFetch(`/api/reviews/${reviewId}`, { method: "DELETE" });
     if (response.status === 204 || response.ok) {
       dispatch(deleteReview(reviewId));
       await dispatch(fetchReviews(spotId));
@@ -77,11 +73,13 @@ export const removeReview = (reviewId, spotId) => async (dispatch) => {
     } else {
       const data = await response.json();
       dispatch(setReviewError(data?.errors || "Error deleting review"));
+      return false;
     }
   } catch (error) {
     dispatch(setReviewError("Error deleting review"));
+    return false;
   }
-};
+}
 
 
 const initialState = {
