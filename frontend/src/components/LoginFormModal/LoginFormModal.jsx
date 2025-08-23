@@ -27,16 +27,25 @@ function LoginFormModal() {
       });
   };
 
-  const handleDemoLogin = () => {
-    return dispatch(sessionActions.login({ credential: 'demoUser', password: 'password' }))
-      .then(closeModal)
-      .catch(async (res) => {
-        const data = await res.json();
-        if (data && data.errors) {
-          setErrors(data.errors);
-        }
-      });
-  };
+  const handleDemoLogin = async () => {
+  setErrors({});
+  try {
+    await dispatch(
+      sessionActions.login({ credential: 'demo@user.io', password: 'password' })
+    );
+    closeModal();
+  } catch (res) {
+    let data;
+    try {
+      data = await res.json();
+    } catch (e) {
+      // ignore if response body isn’t JSON
+      data = null;
+    }
+    if (data?.errors) setErrors(data.errors);
+    else setErrors({ credential: 'Demo login failed' });
+  }
+};
 
   const isButtonDisabled = credential.length < minUserChars || password.length < minPassChars;
 
